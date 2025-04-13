@@ -1,16 +1,18 @@
 from datetime import datetime
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from . import users_profile, schemas, models
+from . import users_profile, schemas
+from .controllers import UserController
 from .database import get_db
+
 
 router = APIRouter(prefix="/users", tags=["Users"])
 
 
 @router.post("/", response_model=schemas.UserProfileRead)
 def create_user(user: schemas.UserProfileCreate, db: Session = Depends(get_db)):
+    UserController.validate_user_data(user)
     return users_profile.create_user_profile(db, user)
-
 
 @router.get("/{user_id}", response_model=schemas.UserProfileRead)
 def read_user(user_id: int, db: Session = Depends(get_db)):
@@ -38,16 +40,7 @@ def update_user(user_id: int, user_data: schemas.UserProfileCreate, db: Session 
 
 @router.get("/filter/", response_model=list[schemas.UserProfileRead])
 def filter_by_role(role: str, db: Session = Depends(get_db)):
-    query = db.query(models.User_Profile)
-    if role == "student":
-        query = query.filter(models.User_Profile.is_student == True)
-    elif role == "teacher":
-        query = query.filter(models.User_Profile.is_teacher == True)
-    elif role == "admin":
-        query = query.filter(models.User_Profile.is_admin == True)
-    else:
-        raise HTTPException(status_code=400, detail="Некорректная роль")
-    return query.all()
+    return UserController.filter_users_by_role(db, role)
 
 @router.delete("/{user_id}")
 def delete_user(user_id: int, db: Session = Depends(get_db)):
