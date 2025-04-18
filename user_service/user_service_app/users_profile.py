@@ -11,6 +11,24 @@ def create_user_profile(db: Session, user: schemas.UserProfileCreate) -> models.
     return db_user
 
 
+def update_user_profile(db: Session, user: schemas.UserProfileUpdate, user_id: int) -> models.User_Profile:
+    db_user = db.query(models.User_Profile).filter(models.User_Profile.id == user_id).first()
+
+    if db_user is None:
+        raise ValueError(f"User with id {user_id} not found")
+
+    for key, value in user.dict().items():
+        setattr(db_user, key, value)
+
+    db_user.updated_at = datetime.now()
+
+    db.commit()
+
+    db.refresh(db_user)
+
+    return db_user
+
+
 def get_user_profile(db: Session, user_id: int):
     return db.query(models.User_Profile).filter(models.User_Profile.id == user_id).first()
 
