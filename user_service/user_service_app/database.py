@@ -3,9 +3,9 @@ from sqlalchemy.orm import sessionmaker, declarative_base
 from dotenv import load_dotenv
 import os
 
-SQLALCHEMY_DATABASE_URL = "postgresql://user:password@localhost/userdb"
+DATABASE_URL = "postgresql://user:password@db:5432/dbname"
 
-engine = create_engine(SQLALCHEMY_DATABASE_URL)
+engine = create_engine(DATABASE_URL)
 SessionLocal = sessionmaker(bind=engine, autoflush=False, autocommit=False)
 
 Base = declarative_base()
