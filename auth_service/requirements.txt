@@ -4,10 +4,10 @@ sqlalchemy
 alembic
 psycopg2-binary
 python-jose
-passlib
+bcrypt==3.2.2
+passlib[bcrypt]==1.7.4
 python-dotenv
 email-validator
 pydantic
-bcrypt
 python-jose
 cryptography

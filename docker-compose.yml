@@ -1,0 +1,96 @@
+version: '3.8'
+
+services:
+  auth_service:
+    build: ./auth_service
+    ports:
+      - "8000:8000"
+    env_file:
+      - ./auth_service/.env
+    depends_on:
+      - auth_db
+    networks:
+      - backend
+
+  auth_db:
+    image: postgres
+    restart: always
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: auth_db
+    ports:
+      - "55432:5432"
+    volumes:
+      - auth_postgres_data:/var/lib/postgresql/data
+    networks:
+      - backend
+
+  user_service:
+    build: ./user_service
+    ports:
+      - "8001:8000"
+    env_file:
+      - ./user_service/.env
+    depends_on:
+      - user_db
+    networks:
+      - backend
+
+  user_db:
+    image: postgres
+    restart: always
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: user_db
+    ports:
+      - "5433:5432"
+    volumes:
+      - user_postgres_data:/var/lib/postgresql/data
+    networks:
+      - backend
+
+  schedule_service:
+    build: ./schedule_service
+    ports:
+      - "8002:8000"
+    env_file:
+      - ./schedule_service/.env
+    depends_on:
+      - schedule_db
+    networks:
+      - backend
+
+  schedule_db:
+    image: postgres
+    restart: always
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: schedule_db
+    ports:
+      - "5434:5432"
+    volumes:
+      - schedule_postgres_data:/var/lib/postgresql/data
+    networks:
+      - backend
+
+  gateway_service:
+    build:
+      context: ./gateway_service
+    ports:
+      - "8080:8000"
+    depends_on:
+      - auth_service
+    networks:
+      - backend
+
+volumes:
+  auth_postgres_data:
+  user_postgres_data:
+  schedule_postgres_data:
+
+networks:
+  backend:
+    driver: bridge

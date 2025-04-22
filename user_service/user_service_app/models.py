@@ -1,9 +1,6 @@
 from datetime import datetime
-from sqlalchemy.orm import Mapped, relationship
-from sqlalchemy.orm import mapped_column
-from sqlalchemy import String
-from sqlalchemy import Date
-from sqlalchemy import ForeignKey
+from sqlalchemy.orm import Mapped, relationship, mapped_column
+from sqlalchemy import String, Date, ForeignKey, Boolean, Integer
 from typing import Optional, List
 from .database import Base
 
@@ -17,23 +14,29 @@ class Group(Base):
 
     users: Mapped[List["User_Profile"]] = relationship("User_Profile", back_populates="group")
 
+
 class User_Profile(Base):
     __tablename__ = "Users_profile"
 
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True, unique=True)
-    name: Mapped[str] = mapped_column(String(15))
-    second_name: Mapped[str] = mapped_column(String(20))
-    email: Mapped[str] = mapped_column(String)
-    date_of_brthd: Mapped[datetime] = mapped_column(Date)
-    phone_number: Mapped[Optional[str]] = mapped_column(String)
-    created_at: Mapped[Optional[datetime]] = mapped_column(Date)
-    updated_at: Mapped[Optional[datetime]] = mapped_column(Date)
-    shard_number: Mapped[int] = mapped_column(autoincrement=True, unique=True)
-    course: Mapped[int] = mapped_column()
-    group_id: Mapped[Optional[int]] = mapped_column(ForeignKey("Groups.id"))
-    is_teacher: Mapped[bool] = mapped_column(server_default="false")
-    is_student: Mapped[bool] = mapped_column(server_default="false")
-    is_admin: Mapped[bool] = mapped_column(server_default="false")
+    
+    email: Mapped[str] = mapped_column(String, nullable=False, unique=True)
+
+    name: Mapped[Optional[str]] = mapped_column(String(15), nullable=True)
+    second_name: Mapped[Optional[str]] = mapped_column(String(20), nullable=True)
+    date_of_brthd: Mapped[Optional[datetime]] = mapped_column(Date, nullable=True)
+    phone_number: Mapped[Optional[str]] = mapped_column(String, nullable=True)
+
+    created_at: Mapped[datetime] = mapped_column(Date, default=datetime.utcnow)
+    updated_at: Mapped[Optional[datetime]] = mapped_column(Date, nullable=True)
+
+    shard_number: Mapped[Optional[int]] = mapped_column(Integer, unique=True, nullable=True)
+    course: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)
+    group_id: Mapped[Optional[int]] = mapped_column(ForeignKey("Groups.id"), nullable=True)
+
+    is_teacher: Mapped[bool] = mapped_column(Boolean, server_default="false")
+    is_student: Mapped[bool] = mapped_column(Boolean, server_default="false")
+    is_admin: Mapped[bool] = mapped_column(Boolean, server_default="false")
 
     group: Mapped[Optional[Group]] = relationship("Group", back_populates="users")
 

@@ -7,11 +7,15 @@ class UserProfileCreate(BaseModel):
     id: int
     email: EmailStr
 
+class GroupCreate(BaseModel):
+    name: str
+    description: Optional[str] = None
+
 
 class UserProfileUpdate(BaseModel):
     name: Optional[str]
     second_name: Optional[str]
-    date_of_brthd: Optional[date]
+    date_of_birth: Optional[date]
     phone_number: Optional[str]
     course: Optional[int]
     group_id: Optional[int]

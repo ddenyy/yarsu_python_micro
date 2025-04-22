@@ -2,8 +2,10 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from .database import get_db
 from .models import User_Profile, Group
-from .schemas import UserProfileCreate, UserProfileUpdate
+from .schemas import GroupCreate, UserProfileCreate, UserProfileUpdate
 from typing import List
+
+import logging
 
 router = APIRouter()
 
@@ -23,6 +25,7 @@ def create_user_profile(payload: UserProfileCreate, db: Session = Depends(get_db
 
 @router.put("/profile/{user_id}")
 def update_user_profile(user_id: int, payload: UserProfileUpdate, db: Session = Depends(get_db)):
+    logging.warning(f"payload = {payload}")
     profile = db.query(User_Profile).filter(User_Profile.id == user_id).first()
     if not profile:
         raise HTTPException(status_code=404, detail="User profile not found")
@@ -43,6 +46,7 @@ def get_students(db: Session = Depends(get_db)):
 def get_teachers(db: Session = Depends(get_db)):
     teachers = db.query(User_Profile).filter(User_Profile.is_teacher == True).all()
     return [{"id": t.id, "group": t.group.name if t.group else None} for t in teachers]
+
 
 @router.get("/groups", response_model=List[str])
 def get_groups(db: Session = Depends(get_db)):
@@ -102,3 +106,11 @@ def get_student_by_id(student_id: int, db: Session = Depends(get_db)):
         "email": student.email,
         "group": student.group.name if student.group else None
     }
+
+@router.post("/groups")
+def create_group(group: GroupCreate, db: Session = Depends(get_db)):
+    new_group = Group(name=group.name, description=group.description)
+    db.add(new_group)
+    db.commit()
+    db.refresh(new_group)
+    return new_group

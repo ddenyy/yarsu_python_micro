@@ -1,0 +1,7 @@
+  gateway_service:
+    build:
+      context: ./gateway_service
+    ports:
+      - "8080:8000"
+    depends_on:
+      - auth_service
