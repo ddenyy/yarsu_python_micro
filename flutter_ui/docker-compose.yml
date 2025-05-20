@@ -1,0 +1,5 @@
+services:
+  flutter_web:
+    build: .
+    ports:
+      - "8080:8080"
