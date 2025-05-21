@@ -1,5 +1,6 @@
 from fastapi import FastAPI, Request, HTTPException, Depends
 import httpx
+from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
 
@@ -7,6 +8,13 @@ AUTH_SERVICE_URL = "http://auth_service:8000/auth"
 USER_SERVICE_URL = "http://user_service:8000"
 SCHEDULE_SERVICE_URL = "http://schedule_service:8000"
 
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 async def get_current_user(request: Request):
     auth_header = request.headers.get("Authorization")

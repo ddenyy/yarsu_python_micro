@@ -1,6 +1,6 @@
 FROM cirrusci/flutter:stable
 
-WORKDIR /app
+WORKDIR /ui
 
 COPY . .
 
