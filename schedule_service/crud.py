@@ -1,5 +1,5 @@
 from sqlalchemy.orm import Session
-from models import Lesson
+from models import Lesson, StudentGroup
 import schemas
 import os
 import requests
