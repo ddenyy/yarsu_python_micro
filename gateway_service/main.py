@@ -1,3 +1,5 @@
+import logging
+
 from fastapi import FastAPI, Request, HTTPException, Depends
 import httpx
 from fastapi.middleware.cors import CORSMiddleware
@@ -67,7 +69,16 @@ async def login(request: Request):
             raise HTTPException(status_code=response.status_code, detail="Login failed")
 
         return response.json()
-    
+
+@app.get("/profile")
+async def get_own_profile(current_user: int = Depends(get_current_user)):
+    async with httpx.AsyncClient() as client:
+        profile = await client.get(f"{USER_SERVICE_URL}/profile/{current_user}")
+        if profile.status_code == 200:
+            return profile.json()
+        raise HTTPException(status_code=404, detail="Profile not found")
+
+
 @app.post("/refresh")
 async def refresh_token(request: Request):
     data = await request.json()
@@ -113,27 +124,23 @@ async def get_my_profile(current_user_id: int = Depends(get_current_user)):
             # Ошибка сети при обращении к user_service
             raise HTTPException(status_code=503, detail=f"User service is unavailable: {str(e)}")
 
-@app.put("/profile/{user_id}")
+@app.put("/profile")
 async def update_profile(
-    user_id: int,
     request: Request,
     current_user: int = Depends(get_current_user)
 ):
-    if user_id != int(current_user):
-        print(type(user_id), type(current_user),user_id, current_user)
-        raise HTTPException(status_code=403, detail="Forbidden: cannot modify another user's profile")
-
     data = await request.json()
+    logging.warning(f"DATA TO USER SERVICE: {data}")
 
     async with httpx.AsyncClient() as client:
         try:
-            response = await client.put(f"{USER_SERVICE_URL}/profile/{user_id}", json=data)
+            response = await client.put(f"{USER_SERVICE_URL}/profile/{current_user}", json=data)
             response.raise_for_status()
         except httpx.HTTPError:
+            logging.error(f"USER SERVICE ERROR: {response.text}")
             raise HTTPException(status_code=response.status_code, detail="Failed to update user profile")
 
         return response.json()
-
     
 
 
@@ -142,9 +149,7 @@ async def create_group(request: Request, current_user: int = Depends(get_current
     # Получение профиля пользователя
     async with httpx.AsyncClient() as client:
         try:
-            profile_resp = await client.get(f"{USER_SERVICE_URL}/students/{current_user}")
-            if profile_resp.status_code == 404:
-                profile_resp = await client.get(f"{USER_SERVICE_URL}/teachers/{current_user}")
+            profile_resp = await client.get(f"{USER_SERVICE_URL}/profile/{current_user}")
             profile_resp.raise_for_status()
             profile_data = profile_resp.json()
         except httpx.HTTPError:
@@ -211,19 +216,8 @@ async def get_students_by_group(group_id: int, current_user: int = Depends(get_c
 
 
 @app.get("/students")
-async def get_students(current_user: int = Depends(get_current_user)):
+async def get_students():
     async with httpx.AsyncClient() as client:
-        # Получаем профиль текущего пользователя
-        profile_resp = await client.get(f"{USER_SERVICE_URL}/teachers/{current_user}")
-        if profile_resp.status_code != 200:
-            profile_resp = await client.get(f"{USER_SERVICE_URL}/students/{current_user}")
-        if profile_resp.status_code != 200:
-            raise HTTPException(status_code=403, detail="Access denied: no profile")
-
-        profile = profile_resp.json()
-        if not (profile.get("is_teacher") or profile.get("is_admin")):
-            raise HTTPException(status_code=403, detail="Access denied: only staff")
-
         # Возвращаем список студентов
         response = await client.get(f"{USER_SERVICE_URL}/students")
         response.raise_for_status()
@@ -306,19 +300,19 @@ async def create_lesson(request: Request, current_user_id: str = Depends(get_cur
 
     
 @app.get("/lesson/teacher/{teacher_id}")
-async def get_lessons_by_teacher(teacher_id: int, current_user: dict = Depends(get_current_user)):
+async def get_lessons_by_teacher(current_user: dict = Depends(get_current_user)):
     async with httpx.AsyncClient() as client:
-        resp = await client.get(f"{SCHEDULE_SERVICE_URL}/lesson/?teacher_id={teacher_id}")
+        resp = await client.get(f"{SCHEDULE_SERVICE_URL}/lesson/?teacher_id={current_user}")
         resp.raise_for_status()
         return resp.json()
 
 @app.get("/lesson/student/{student_id}")
-async def get_lessons_by_student(student_id: int, current_user: dict = Depends(get_current_user)):
-    if not (current_user.get("is_admin") or current_user["user_id"] == student_id):
+async def get_lessons_by_student(current_user: dict = Depends(get_current_user)):
+    if not (current_user.get("is_admin") or current_user["user_id"] == current_user):
         raise HTTPException(status_code=403, detail="Access denied")
 
     async with httpx.AsyncClient() as client:
-        resp = await client.get(f"{SCHEDULE_SERVICE_URL}/lesson/?student_id={student_id}")
+        resp = await client.get(f"{SCHEDULE_SERVICE_URL}/lesson/?student_id={current_user}")
         resp.raise_for_status()
         return resp.json()
 

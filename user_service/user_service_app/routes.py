@@ -37,6 +37,13 @@ def update_user_profile(user_id: int, payload: UserProfileUpdate, db: Session = 
     db.refresh(profile)
     return profile
 
+@router.get("/profile/{user_id}")
+def get_user_profile(user_id: int, db: Session = Depends(get_db)):
+    profile = db.query(User_Profile).filter(User_Profile.id == user_id).first()
+    if not profile:
+        raise HTTPException(status_code=404, detail="User profile not found")
+    return profile
+
 @router.get("/students")
 def get_students(db: Session = Depends(get_db)):
     students = db.query(User_Profile).filter(User_Profile.is_student == True).all()

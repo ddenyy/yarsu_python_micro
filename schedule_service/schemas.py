@@ -3,10 +3,15 @@ from typing import Optional
 from datetime import datetime
 import enum
 
+from yarsu_python_micro.schedule_service.models import StudentGroup
+
+
 class LessonType(str, enum.Enum):
     lecture = "lecture"
     practice = "practice"
 
+class GroupCreate(StudentGroup):
+    name: str
 class LessonCreate(BaseModel):
     course_name: str
     teacher_id: int

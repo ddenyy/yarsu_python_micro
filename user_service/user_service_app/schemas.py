@@ -13,14 +13,14 @@ class GroupCreate(BaseModel):
 
 
 class UserProfileUpdate(BaseModel):
-    name: Optional[str]
-    second_name: Optional[str]
-    date_of_birth: Optional[date]
-    phone_number: Optional[str]
-    course: Optional[int]
-    group_id: Optional[int]
-    is_teacher: Optional[bool]
-    is_student: Optional[bool]
+    name: Optional[str] = None
+    second_name: Optional[str] = None
+    date_of_brthd: Optional[date] = None
+    phone_number: Optional[str] = None
+    course: Optional[int] = None
+    group_id: Optional[int] = None
+    is_teacher: Optional[bool] = None
+    is_student: Optional[bool] = None
 
 class UserProfile(BaseModel):
     id: int

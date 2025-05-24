@@ -1,8 +1,15 @@
 from sqlalchemy.orm import Session
-from models import Lesson
+from models import *
 import schemas
 import os
 import requests
+
+def create_group(db: Session, group: schemas.GroupCreate):
+    db_group = StudentGroup(**group.dict())
+    db.add(db_group)
+    db.commit()
+    db.refresh(db_group)
+    return db_group
 
 def create_lesson(db: Session, lesson: schemas.LessonCreate):
     db_lesson = Lesson(**lesson.dict())
@@ -34,7 +41,7 @@ def delete_lesson(db: Session, lesson_id: int):
     return lesson
 
 
-USER_SERVICE_URL = os.getenv("USER_SERVICE_URL", "http://user_service:8000/users")
+USER_SERVICE_URL = os.getenv("USER_SERVICE_URL", "http://user_service:8000/profile/{student_id}")
 
 def get_group_name_by_student(student_id: int) -> str:
     try:

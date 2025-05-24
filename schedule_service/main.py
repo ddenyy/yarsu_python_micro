@@ -15,6 +15,14 @@ def get_db():
     finally:
         db.close()
 
+
+@app.post("/groups/", response_model=schemas.StudentGroup)
+def create_group(group: schemas.GroupCreate, db: Session = Depends(get_db)):
+    db_group = crud.get_group_by_name(db, name=group.name)
+    if db_group:
+        raise HTTPException(status_code=400, detail="Group already exists")
+    return crud.create_group(db=db, group=group)
+
 @app.post("/lesson/", response_model=schemas.LessonOut)
 def create_lesson(lesson: schemas.LessonCreate, db: Session = Depends(get_db)):
     return crud.create_lesson(db, lesson)
