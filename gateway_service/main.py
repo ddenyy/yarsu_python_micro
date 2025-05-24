@@ -85,6 +85,33 @@ async def refresh_token(request: Request):
 
         return response.json()
 
+# Новый эндпоинт для получения профиля текущего пользователя
+@app.get("/profile/me")
+async def get_my_profile(current_user_id: int = Depends(get_current_user)):
+    async with httpx.AsyncClient() as client:
+        try:
+            # Пытаемся получить как студента
+            resp = await client.get(f"{USER_SERVICE_URL}/students/{current_user_id}")
+            if resp.status_code == 404: # Not Found
+                # Если не студент, пытаемся как преподавателя
+                resp = await client.get(f"{USER_SERVICE_URL}/teachers/{current_user_id}")
+            
+            resp.raise_for_status() # Проверка на ошибки HTTP (4xx, 5xx)
+            return resp.json()
+        except httpx.HTTPStatusError as e:
+            # Ошибка от user_service (например, 404, если профиль не найден)
+            detail = f"Failed to get user profile from user_service: {e.response.text}"
+            try:
+                # Попытка извлечь более конкретную ошибку из ответа user_service
+                error_json = e.response.json()
+                if isinstance(error_json, dict) and 'detail' in error_json:
+                    detail = error_json['detail']
+            except ValueError: # Если ответ не JSON
+                pass 
+            raise HTTPException(status_code=e.response.status_code, detail=detail)
+        except httpx.RequestError as e:
+            # Ошибка сети при обращении к user_service
+            raise HTTPException(status_code=503, detail=f"User service is unavailable: {str(e)}")
 
 @app.put("/profile/{user_id}")
 async def update_profile(
