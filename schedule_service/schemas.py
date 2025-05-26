@@ -2,16 +2,16 @@ from pydantic import BaseModel
 from typing import Optional
 from datetime import datetime
 import enum
-
-from yarsu_python_micro.schedule_service.models import StudentGroup
+from models import StudentGroup
 
 
 class LessonType(str, enum.Enum):
     lecture = "lecture"
     practice = "practice"
 
-class GroupCreate(StudentGroup):
+class GroupCreate(BaseModel):
     name: str
+    description: str
 class LessonCreate(BaseModel):
     course_name: str
     teacher_id: int

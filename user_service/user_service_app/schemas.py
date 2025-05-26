@@ -11,6 +11,11 @@ class GroupCreate(BaseModel):
     name: str
     description: Optional[str] = None
 
+class Group(BaseModel):
+    name: str
+    id: int
+    descrption: Optional[str] = None
+
 
 class UserProfileUpdate(BaseModel):
     name: Optional[str] = None
@@ -18,7 +23,7 @@ class UserProfileUpdate(BaseModel):
     date_of_brthd: Optional[date] = None
     phone_number: Optional[str] = None
     course: Optional[int] = None
-    group_id: Optional[int] = None
+    group_name: Optional[str] = None
     is_teacher: Optional[bool] = None
     is_student: Optional[bool] = None
 

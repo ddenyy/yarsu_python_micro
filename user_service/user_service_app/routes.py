@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
+
 from .database import get_db
 from .models import User_Profile, Group
 from .schemas import GroupCreate, UserProfileCreate, UserProfileUpdate
@@ -47,18 +48,18 @@ def get_user_profile(user_id: int, db: Session = Depends(get_db)):
 @router.get("/students")
 def get_students(db: Session = Depends(get_db)):
     students = db.query(User_Profile).filter(User_Profile.is_student == True).all()
-    return [{"id": s.id, "group": s.group.name if s.group else None} for s in students]
+    return [{"id": s.id, "name": s.name, "second_name": s.second_name, "email": s.email, "group": s.group.name if s.group else None} for s in students]
 
 @router.get("/teachers")
 def get_teachers(db: Session = Depends(get_db)):
     teachers = db.query(User_Profile).filter(User_Profile.is_teacher == True).all()
-    return [{"id": t.id, "group": t.group.name if t.group else None} for t in teachers]
+    return [{"id": t.id, "name": t.name if t.name else None, "second_name": t.second_name, "email": t.email} for t in teachers]
 
 
-@router.get("/groups", response_model=List[str])
-def get_groups(db: Session = Depends(get_db)):
-    groups = db.query(Group.name).distinct().all()
-    return [g[0] for g in groups if g[0] is not None]
+@router.get("/groups") # Изменена response_model
+def get_all_groups(db: Session = Depends(get_db)): # Переименовал для ясности
+    groups = db.query(Group).all() # Получаем все объекты Group
+    return groups
 
 @router.get("/groups/{group_id}/students")
 def get_students_by_group(group_id: int, db: Session = Depends(get_db)):
