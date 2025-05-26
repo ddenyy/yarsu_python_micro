@@ -121,3 +121,11 @@ def create_group(group: GroupCreate, db: Session = Depends(get_db)):
     db.commit()
     db.refresh(new_group)
     return new_group
+
+@router.get("/users/{user_id}/group")
+def get_user_group_name(user_id: int, db: Session = Depends(get_db)):
+    user = db.query(User_Profile).filter(User_Profile.id == user_id).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    return {"group_name": user.group.name if user.group else None}

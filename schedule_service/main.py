@@ -27,14 +27,19 @@ def create_group(group: schemas.GroupCreate, db: Session = Depends(get_db)):
 def create_lesson(lesson: schemas.LessonCreate, db: Session = Depends(get_db)):
     return crud.create_lesson(db, lesson)
 
-@app.get("/lesson/", response_model=list[schemas.LessonOut])
-def get_lessons(student_id: int = None, teacher_id: int = None, db: Session = Depends(get_db)):
-    if student_id:
-        return crud.get_lessons_by_student(db, student_id)
-    elif teacher_id:
-        return crud.get_lessons_by_teacher(db, teacher_id)
+@app.get("/lessons/{user_id}", response_model=list[schemas.LessonOut])
+def get_lessons(user_id: int, db: Session = Depends(get_db)):
+    user = db.query(models.User_Profile).filter(models.User_Profile.id == user_id).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    if user.is_student:
+        return crud.get_lessons_by_student(db, user_id)
+    elif user.is_teacher:
+        return crud.get_lessons_by_teacher(db, user_id)
     else:
-        raise HTTPException(status_code=400, detail="student_id or teacher_id required")
+        raise HTTPException(status_code=400, detail="User is neither student nor teacher")
+
 
 @app.patch("/lesson/{lesson_id}", response_model=schemas.LessonOut)
 def update_lesson(lesson_id: int, updates: schemas.LessonUpdate, db: Session = Depends(get_db)):

@@ -22,7 +22,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   late TextEditingController _dateOfBirthController;
   late TextEditingController _phoneNumberController;
   late TextEditingController _courseController;
-  late TextEditingController _groupIdController;
+  late TextEditingController _groupNameController;
   bool _isStudent = false;
   bool _isTeacher = false;
 
@@ -42,8 +42,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         TextEditingController(text: widget.profileData['phone_number'] ?? '');
     _courseController = TextEditingController(
         text: widget.profileData['course']?.toString() ?? '');
-    _groupIdController = TextEditingController(
-        text: widget.profileData['group_id']?.toString() ?? '');
+    _groupNameController = TextEditingController(
+        text: widget.profileData['group_name']?.toString() ?? '');
     _isStudent = widget.profileData['is_student'] ?? false;
     _isTeacher = widget.profileData['is_teacher'] ?? false;
   }
@@ -55,7 +55,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     _dateOfBirthController.dispose();
     _phoneNumberController.dispose();
     _courseController.dispose();
-    _groupIdController.dispose();
+    _groupNameController.dispose();
     super.dispose();
   }
 
@@ -73,7 +73,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       'date_of_brthd': _dateOfBirthController.text.trim(),
       'phone_number': _phoneNumberController.text.trim(),
       'course': _courseController.text.trim(),
-      'group_id': _groupIdController.text.trim(),
+      'group_name': _groupNameController.text.trim(),
       'is_student': _isStudent,
       'is_teacher': _isTeacher,
     };
@@ -163,9 +163,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                     ),
                     const SizedBox(height: 16),
                     TextFormField(
-                      controller: _groupIdController,
+                      controller: _groupNameController,
                       decoration: const InputDecoration(
-                        labelText: 'ID группы',
+                        labelText: 'Название группы',
                         border: OutlineInputBorder(),
                       ),
                       keyboardType: TextInputType.number,

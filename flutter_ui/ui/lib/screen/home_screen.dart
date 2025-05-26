@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:ui/screen/Groups_screen.dart';
+import 'package:ui/screen/students_screen.dart';
+import 'package:ui/screen/teachers_screen.dart';
 import '../api_service.dart';
 import 'login_screen.dart';
 import 'profile_screen.dart'; // Создадим
@@ -117,7 +120,33 @@ class _HomeScreenState extends State<HomeScreen> {
                         },
                         child: const Text('Мое расписание'),
                       ),
-                      // TODO: Добавить кнопки для других разделов (например, Группы, если админ/преподаватель)
+                      const SizedBox(height: 10),
+                      ElevatedButton(
+                        onPressed: () {
+                          Navigator.of(context).push(MaterialPageRoute(
+                              builder: (context) =>
+                                  GroupsScreen(apiService: widget.apiService)));
+                        },
+                        child: const Text('Группы'),
+                      ),
+                      const SizedBox(height: 10),
+                      ElevatedButton(
+                        onPressed: () {
+                          Navigator.of(context).push(MaterialPageRoute(
+                              builder: (context) => TeachersScreen(
+                                  apiService: widget.apiService)));
+                        },
+                        child: const Text('Преподаватели'),
+                      ),
+                      const SizedBox(height: 10),
+                      ElevatedButton(
+                        onPressed: () {
+                          Navigator.of(context).push(MaterialPageRoute(
+                              builder: (context) => StudentsScreen(
+                                  apiService: widget.apiService)));
+                        },
+                        child: const Text('Студенты'),
+                      ),
                     ],
                   ),
                 ),

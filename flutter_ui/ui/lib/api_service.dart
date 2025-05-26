@@ -110,14 +110,6 @@ class ApiService {
   }
 
   Future<Map<String, dynamic>> getMyProfile() async {
-    // Ваш gateway /profile/{user_id} требует user_id.
-    // Мы должны получить его из SharedPreferences или передать в метод.
-    // Если эндпоинт /profile (без id) может вернуть профиль по токену, это проще.
-    // Предположим, gateway_service может извлечь user_id из токена для специального эндпоинта /profile/me
-    // ИЛИ, если ваш эндпоинт /profile/{user_id} на gateway сам достает user_id из Depends(get_current_user)
-    // то можно просто вызвать /profile, а gateway перенаправит на USER_SERVICE_URL/profile/{user_id_from_token}
-    // Для примера, я использую /profile, предполагая, что gateway это разрулит.
-    // Если нет, вам нужен эндпоинт в gateway, который не требует id в пути, а берет из токена.
     final response = await http.get(
       Uri.parse(
           '$_baseUrl/profile'), // Используем эндпоинт /profile как указано пользователем
@@ -196,12 +188,47 @@ class ApiService {
     }
   }
 
-  // Получение расписания для текущего пользователя (студента или преподавателя)
+  Future<List<dynamic>> getTeachers() async {
+    try {
+      final response = await http.get(
+        Uri.parse('$_baseUrl/teachers'),
+        headers: await _getHeaders(),
+      );
+
+      if (response.statusCode == 200) {
+        return jsonDecode(response.body) as List<dynamic>;
+      } else {
+        throw Exception(
+            'Failed to load teachers. Status code: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Error fetching teachers: $e');
+      throw Exception('Failed to load teachers: $e');
+    }
+  }
+
+  Future<List<dynamic>> getStudents() async {
+    try {
+      final response = await http.get(
+        Uri.parse('$_baseUrl/students'),
+        headers: await _getHeaders(),
+      );
+
+      if (response.statusCode == 200) {
+        return jsonDecode(response.body) as List<dynamic>;
+      } else {
+        throw Exception(
+            'Failed to load students. Status code: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Error fetching students: $e');
+      throw Exception('Failed to load students: $e');
+    }
+  }
+
   Future<List<dynamic>> getMyLessons() async {
-    // Предположим, у вас есть эндпоинт в gateway /lessons/my который по токену определяет пользователя
-    // и запрашивает соответствующее расписание (студента или преподавателя)
     final response = await http.get(
-      Uri.parse('$_baseUrl/lessons/my'), // Пример эндпоинта, уточните ваш
+      Uri.parse('$_baseUrl/lessons/'),
       headers: await _getHeaders(),
     );
     if (response.statusCode == 200) {

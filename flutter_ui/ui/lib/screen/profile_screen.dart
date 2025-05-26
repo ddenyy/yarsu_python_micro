@@ -110,9 +110,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   ? 'Да'
                                   : 'Нет')),
                           if (_profileData!['is_teacher'] == false &&
-                              _profileData!['group_id'] != null)
-                            _buildProfileDetail('ID Группы',
-                                _profileData!['group_id']?.toString()),
+                              _profileData!['group_name'] != null)
+                            _buildProfileDetail('Название группы',
+                                _profileData!['group_name']?.toString()),
                           if (_profileData!['is_teacher'] == false &&
                               _profileData!['group_name'] != null)
                             _buildProfileDetail('Название группы',
