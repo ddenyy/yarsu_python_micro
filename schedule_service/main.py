@@ -16,7 +16,7 @@ def get_db():
         db.close()
 
 
-@app.post("/groups/", response_model=schemas.StudentGroup)
+@app.post("/groups/", response_model=schemas.GroupCreate)
 def create_group(group: schemas.GroupCreate, db: Session = Depends(get_db)):
     db_group = crud.get_group_by_name(db, name=group.name)
     if db_group:
