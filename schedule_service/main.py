@@ -16,12 +16,13 @@ def get_db():
         db.close()
 
 
-@app.post("/groups/", response_model=schemas.GroupCreate)
+@app.post("/groups")
 def create_group(group: schemas.GroupCreate, db: Session = Depends(get_db)):
-    db_group = crud.get_group_by_name(db, name=group.name)
-    if db_group:
-        raise HTTPException(status_code=400, detail="Group already exists")
-    return crud.create_group(db=db, group=group)
+    new_group = models.StudentGroup(name=group.name, description=group.description)
+    db.add(new_group)
+    db.commit()
+    db.refresh(new_group)
+    return new_group
 
 @app.post("/lesson/", response_model=schemas.LessonOut)
 def create_lesson(lesson: schemas.LessonCreate, db: Session = Depends(get_db)):
@@ -54,3 +55,10 @@ def delete_lesson(lesson_id: int, db: Session = Depends(get_db)):
     if not deleted:
         raise HTTPException(status_code=404, detail="Lesson not found")
     return deleted
+
+@app.post("/rooms/", response_model=schemas.RoomOut)
+def create_room(room: schemas.RoomCreate, db: Session = Depends(get_db)):
+    db_room = crud.get_room_by_number(db, number=room.room_number)
+    if db_room:
+        raise HTTPException(status_code=400, detail="Room with this number already exists")
+    return crud.create_room(db=db, room=room)

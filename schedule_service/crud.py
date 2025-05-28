@@ -1,8 +1,10 @@
 from sqlalchemy.orm import Session
-from models import *
 import schemas
 import os
 import requests
+
+from models import StudentGroup, Lesson, Room
+
 
 def create_group(db: Session, group: schemas.GroupCreate):
     db_group = StudentGroup(**group.dict())
@@ -41,11 +43,11 @@ def delete_lesson(db: Session, lesson_id: int):
     return lesson
 
 
-USER_SERVICE_URL = os.getenv("USER_SERVICE_URL", "http://user_service:8000/profile/{student_id}")
+USER_SERVICE_URL = os.getenv("USER_SERVICE_URL", "http://user_service:8000/")
 
 def get_group_name_by_student(student_id: int) -> str:
     try:
-        response = requests.get(f"{USER_SERVICE_URL}/{student_id}")
+        response = requests.get(f"{USER_SERVICE_URL}/profile/{student_id}")
         response.raise_for_status()
         student_data = response.json()
         return student_data["group"]
@@ -58,3 +60,15 @@ def get_lessons_by_student(db: Session, student_id: int):
     return db.query(Lesson).join(StudentGroup).filter(StudentGroup.name == group_name).all()
 
 
+def get_group_by_name(db: Session, name: str):
+    return db.query(StudentGroup).filter(StudentGroup.name == name).first()
+
+def create_room(db: Session, room: schemas.RoomCreate):
+    db_room = Room(**room.dict())
+    db.add(db_room)
+    db.commit()
+    db.refresh(db_room)
+    return db_room
+
+def get_room_by_number(db: Session, number: str):
+    return db.query(Room).filter(Room.room_number == number).first()

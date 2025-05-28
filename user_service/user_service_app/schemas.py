@@ -26,6 +26,7 @@ class UserProfileUpdate(BaseModel):
     group_name: Optional[str] = None
     is_teacher: Optional[bool] = None
     is_student: Optional[bool] = None
+    is_admin: Optional[bool] = None
 
 class UserProfile(BaseModel):
     id: int

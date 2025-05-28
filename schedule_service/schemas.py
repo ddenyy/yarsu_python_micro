@@ -2,7 +2,6 @@ from pydantic import BaseModel
 from typing import Optional
 from datetime import datetime
 import enum
-from models import StudentGroup
 
 
 class LessonType(str, enum.Enum):
@@ -11,14 +10,15 @@ class LessonType(str, enum.Enum):
 
 class GroupCreate(BaseModel):
     name: str
-    description: str
+    description: Optional[str] = None
+
 class LessonCreate(BaseModel):
     course_name: str
-    teacher_id: int
+    teacher_id: Optional[int] = None
     group_name: str
     start_time: datetime
     end_time: datetime
-    room_id: int
+    room_id: Optional[int] = None
     lesson_type: LessonType
 
 class LessonUpdate(BaseModel):
@@ -43,3 +43,12 @@ class LessonOut(BaseModel):
     class Config:
         orm_mode = True
 
+class RoomCreate(BaseModel):
+    room_number: str
+    floor: Optional[int] = None
+
+class RoomOut(RoomCreate):
+    id: int
+
+    class Config:
+        orm_mode = True

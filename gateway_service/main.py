@@ -283,7 +283,7 @@ async def create_lesson(request: Request, current_user_id: str = Depends(get_cur
 
     
 @app.get("/lesson/teacher/{teacher_id}")
-async def get_lessons_by_teacher(current_user: dict = Depends(get_current_user)):
+async def get_lessons_by_teacher(current_user: int = Depends(get_current_user)):
     async with httpx.AsyncClient() as client:
         resp = await client.get(f"{SCHEDULE_SERVICE_URL}/lesson/?teacher_id={current_user}")
         resp.raise_for_status()
@@ -312,14 +312,38 @@ async def update_lesson(lesson_id: int, request: Request, current_user: dict = D
         return resp.json()
 
 @app.delete("/lesson/{lesson_id}")
-async def delete_lesson(lesson_id: int, current_user: dict = Depends(get_current_user)):
-    if not current_user.get("is_admin"):
-        raise HTTPException(status_code=403, detail="Only admins can delete lessons")
-
+async def delete_lesson(lesson_id: int):
     async with httpx.AsyncClient() as client:
         resp = await client.delete(f"{SCHEDULE_SERVICE_URL}/lesson/{lesson_id}")
         resp.raise_for_status()
         return {"detail": "Lesson deleted"}
+
+@app.post("/rooms/")
+async def create_room(
+            request: Request,
+            current_user: int = Depends(get_current_user)
+    ):
+    data = await request.json()
+
+    async with httpx.AsyncClient() as client:
+        try:
+            response = await client.post(
+                f"{SCHEDULE_SERVICE_URL}/rooms/",
+                json=data,
+                timeout=10.0
+            )
+            response.raise_for_status()
+            return response.json()
+        except httpx.HTTPStatusError as e:
+            raise HTTPException(
+                status_code=e.response.status_code,
+                detail=f"Schedule service error: {e.response.text}"
+            )
+        except httpx.RequestError as e:
+            raise HTTPException(
+                status_code=503,
+                detail="Schedule service unavailable"
+            )
 
 
 

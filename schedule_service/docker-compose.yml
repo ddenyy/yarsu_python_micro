@@ -15,7 +15,7 @@ services:
     volumes:
       - pgdata:/var/lib/postgresql/data
   
-    user_service:
+  user_service:
       build:
         context: ./user_service
       ports:
