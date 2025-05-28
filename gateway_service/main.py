@@ -291,19 +291,19 @@ async def get_lessons_by_teacher(current_user: int = Depends(get_current_user)):
 
 @app.get("/lesson/student/{student_id}")
 async def get_lessons_by_student(current_user: dict = Depends(get_current_user)):
-    if not (current_user.get("is_admin") or current_user["user_id"] == current_user):
-        raise HTTPException(status_code=403, detail="Access denied")
+    #if not (current_user.get("is_admin") or current_user["user_id"] == current_user):
+       #raise HTTPException(status_code=403, detail="Access denied")
 
     async with httpx.AsyncClient() as client:
-        resp = await client.get(f"{SCHEDULE_SERVICE_URL}/lesson/?student_id={current_user}")
+        resp = await client.get(f"{SCHEDULE_SERVICE_URL}/lessons/{current_user}")
         resp.raise_for_status()
         return resp.json()
 
 
 @app.patch("/lesson/{lesson_id}")
 async def update_lesson(lesson_id: int, request: Request, current_user: dict = Depends(get_current_user)):
-    if not (current_user.get("is_teacher") or current_user.get("is_admin")):
-        raise HTTPException(status_code=403, detail="Only teachers or admins can update lessons")
+    #if not (current_user.get("is_teacher") or current_user.get("is_admin")):
+        #raise HTTPException(status_code=403, detail="Only teachers or admins can update lessons")
 
     data = await request.json()
     async with httpx.AsyncClient() as client:
